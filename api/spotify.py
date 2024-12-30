@@ -121,12 +121,30 @@ def makeSVG(data, background_color, border_color):
     barCSS = barGen(barCount)
 
     if not "is_playing" in data:
-        contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
+        contentBar = ""  # Shows/Hides the EQ bar if no song is currently playing
         currentStatus = "Recently played:"
+        
+        # Llamar a la API para obtener las canciones reproducidas recientemente
         recentPlays = get(RECENTLY_PLAYING_URL)
-        recentPlaysLength = len(recentPlays["items"])
-        itemIndex = random.randint(0, recentPlaysLength - 1)
-        item = recentPlays["items"][itemIndex]["track"]
+        
+        # Comprobar si la respuesta contiene la clave 'items'
+        if "items" in recentPlays and recentPlays["items"]:
+            # Asegurarse de que haya elementos en la lista 'items'
+            recentPlaysLength = len(recentPlays["items"])
+            
+            if recentPlaysLength > 0:
+                # Seleccionar un elemento aleatorio
+                itemIndex = random.randint(0, recentPlaysLength - 1)
+                item = recentPlays["items"][itemIndex]["track"]
+            else:
+                item = None  # No hay canciones recientes
+        else:
+            item = None  # Manejo seguro si 'items' no está presente o está vacío
+
+        # Si no hay canciones recientes, puedes asignar valores predeterminados
+        if item is None:
+            contentBar = "No recent songs to display."
+            currentStatus = "No songs played recently."
     else:
         item = data["item"]
         currentStatus = "Vibing to:"
